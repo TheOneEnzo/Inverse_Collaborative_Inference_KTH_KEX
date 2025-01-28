@@ -115,7 +115,7 @@ class LeNet(nn.Module):
                     x = func(x)
                 return x
         else:
-            print "layer not exists"
+            print ("layer not exists")
             exit(1)
 
 
@@ -177,10 +177,10 @@ class LeNet(nn.Module):
                 return x
 
             else:
-                print "Target layer cannot before source layer"
+                print ("Target layer cannot before source layer")
                 exit(1)
         else:
-            print "layer not exists"
+            print ("layer not exists")
             exit(1)
 
 
@@ -329,7 +329,7 @@ class CIFAR10CNN(nn.Module):
                     x = func(x)
                 return x
         else:
-            print "layer not exists"
+            print ("layer not exists")
             exit(1)
 
 
@@ -346,7 +346,7 @@ class CIFAR10CNN(nn.Module):
                 return x
 
         # Should not go here
-        print "Target layer not found"
+        print ("Target layer not found")
         exit(1)
 
 
@@ -989,7 +989,7 @@ class CIFAR10CNNAlternativeconv11(nn.Module):
                 return x
 
         # Should not go here
-        print "Target layer not found"
+        print ("Target layer not found")
         exit(1)
 
 
@@ -1029,7 +1029,7 @@ class CIFAR10CNNAlternativeconv11Archi2(nn.Module):
                 return x
 
         # Should not go here
-        print "Target layer not found"
+        print ("Target layer not found")
         exit(1)
 
 
@@ -1366,9 +1366,9 @@ class MLPAlternative(nn.Module):
         self.fc2_N = int(0.1*self.input_dims)
         self.fc3_N = self.output_dims
 
-        print "fc1_N: ", self.fc1_N
-        print "fc2_N: ", self.fc2_N
-        print "fc3_N: ", self.fc3_N
+        print ("fc2_N: ", self.fc2_N)
+        print ("fc1_N: ", self.fc1_N)
+        print ("fc3_N: ", self.fc3_N)
 
         self.fc1 = nn.Linear(self.input_dims, self.fc1_N)
         self.classifier.append(self.fc1)

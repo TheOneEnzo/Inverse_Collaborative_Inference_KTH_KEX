@@ -24,7 +24,7 @@ def train(DATASET = 'CIFAR10', network = 'CIFAR10CNN', NEpochs = 200, imageWidth
         BatchSize = 32, learningRate = 1e-3, NDecreaseLR = 20, eps = 1e-3,
         AMSGrad = True, model_dir = "checkpoints/CIFAR10/", model_name = "ckpt.pth", gpu = True):
 
-    print "DATASET: ", DATASET
+    print ("DATASET: ", DATASET)
 
     if DATASET == 'MNIST':
 
@@ -86,17 +86,17 @@ def train(DATASET = 'CIFAR10', network = 'CIFAR10CNN', NEpochs = 200, imageWidth
     if network in netDict:
         net = netDict[network](NChannels)
     else:
-        print "Network not found"
+        print ("Network not found")
         exit(1)
 
-    print net
-    print "len(trainset) ", len(trainset)
-    print "len(testset) ", len(testset)
-    x_train, y_train = trainset.data, trainset.targets,
-    x_test, y_test = testset.data, testset.targets,
+    print (net)
+    print ("len(trainset) ", len(trainset))
+    print ("len(testset) ", len(testset))
+    x_train, y_train = trainset.data, trainset.targets #AttributeError: 'CIFAR10' object has no attribute 'data'
+    x_test, y_test = testset.data, testset.targets #AttributeError: 'CIFAR10' object has no attribute 'data'
 
-    print "x_train.shape ", x_train.shape
-    print "x_test.shape ", x_test.shape
+    print ("x_train.shape ", x_train.shape)
+    print ("x_test.shape ", x_test.shape)
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = BatchSize,
                                       shuffle = True, num_workers = 1)
@@ -154,19 +154,19 @@ def train(DATASET = 'CIFAR10', network = 'CIFAR10CNN', NEpochs = 200, imageWidth
             learningRate = learningRate / 2.0
             setLearningRate(optimizer, learningRate)
 
-        print "Epoch: ", epoch, "Loss: ", lossTrain, "Train accuracy: ", accTrain
+        print ("Epoch: ", epoch, "Loss: ", lossTrain, "Train accuracy: ", accTrain)
 
         accTest = evalTest(testloader, net, gpu = gpu)
 
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     torch.save(net, model_dir + model_name)
-    print "Model saved"
+    print ("Model saved")
 
     newNet = torch.load(model_dir + model_name)
     newNet.eval()
     accTest = evalTest(testloader, net, gpu = gpu)
-    print "Model restore done"
+    print ("Model restore done")
 
 
 if __name__ == '__main__':
@@ -211,7 +211,7 @@ if __name__ == '__main__':
             network = 'CIFAR10CNN'
 
         else:
-            print "No Dataset Found"
+            print ("No Dataset Found")
             exit(0)
 
         train(DATASET = args.dataset, network = network, NEpochs = args.epochs, imageWidth = imageWidth,

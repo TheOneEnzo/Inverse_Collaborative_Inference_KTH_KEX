@@ -20,7 +20,7 @@ import torch.backends.cudnn as cudnn
 def accuracy(predictions, labels):
 
     if not (predictions.shape == labels.shape):
-        print "predictions.shape ", predictions.shape, "labels.shape ", labels.shape
+        print ("predictions.shape ", predictions.shape, "labels.shape ", labels.shape)
         raise AssertionError
 
     correctly_predicted = np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))
@@ -80,7 +80,7 @@ def deprocess(data):
         mu = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32)
         sigma = torch.tensor([0.229, 0.224, 0.225], dtype=torch.float32)
     else:
-        print "Unsupported image in deprocess()"
+        print ("Unsupported image in deprocess()")
         exit(1)
 
     Unnormalize = transforms.Normalize((-mu / sigma).tolist(), (1.0 / sigma).tolist())
@@ -107,7 +107,7 @@ def evalTest(testloader, net, gpu = True):
             groundTruth = batchY.detach().numpy()
         acc += np.mean(pred == groundTruth)
     accTest = acc / NBatch
-    print "Test accuracy: ", accTest #, "NBatch: ", NBatch, "pred == groundTruth.shape", (pred == groundTruth).shape
+    print ("Test accuracy: ", accTest )#, "NBatch: ", NBatch, "pred == groundTruth.shape", (pred == groundTruth).shape
     return accTest
 
 
@@ -209,7 +209,7 @@ def getL1Stat(net, x):
     for layer in net.layerDict:
         targetLayer = net.layerDict[layer]
         layerOutput = net.getLayerOutput(x, targetLayer)
-        print "Layer " + layer + ' l1 loss:', l1loss(layerOutput).cpu().detach().numpy()
+        print ("Layer " + layer + ' l1 loss:', l1loss(layerOutput).cpu().detach().numpy())
 
 
 def getModule(net, blob):
@@ -220,7 +220,7 @@ def getModule(net, blob):
 #    else:
 
     curr_module = net
-    print curr_module
+    print (curr_module)
     for m in modules:
         curr_module = curr_module._modules.get(m)
     return curr_module
@@ -311,7 +311,7 @@ def apply_noise(input, noise_type, noise_level, mean=0.0, gpu=True, args=None):
         output = input + noise
 
     else:
-        print "Unsupported Noise Type: ", noise_type
+        print ("Unsupported Noise Type: ", noise_type)
         exit(1)
 
     return output
@@ -331,7 +331,7 @@ def evalTestSplitModel(testloader, netEdge, netCloud, layer, gpu, noise_type = N
 
         try:
             edgeOutput = netEdge.getLayerOutput(batchX, netEdge.layerDict[layer]).clone()
-        except Exception, e:
+        except Exception as e:
             #print "Except in evalTestSplitModel getLayerOutput, this is a Edge-only model"
             #print str(e)
             edgeOutput = netEdge.forward(batchX).clone()
