@@ -31,7 +31,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
             NDecreaseLR = 20, eps = 1e-3, AMSGrad = True, model_dir = "checkpoints/CIFAR10/", model_name = "ckpt.pth", save_decoder_dir = "checkpoints/CIFAR10/",
             decodername_name = 'CIFAR10CNNDecoderReLU22', gpu = True, validation=False):
 
-    print "DATASET: ", DATASET
+    print ("DATASET: ", DATASET)
 
     if DATASET == 'CIFAR10':
         mu = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32)
@@ -56,16 +56,16 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
                                        download=True, transform = tsf['test'])
 
     else:
-        print "Dataset unsupported"
+        print ("Dataset unsupported")
         exit(1)
 
-    print "len(trainset) ", len(trainset)
-    print "len(testset) ", len(testset)
+    print ("len(trainset) ", len(trainset))
+    print ("len(testset) ", len(testset))
     x_train, y_train = trainset.data, trainset.targets,
     x_test, y_test = testset.data, testset.targets,
 
-    print "x_train.shape ", x_train.shape
-    print "x_test.shape ", x_test.shape
+    print ("x_train.shape ", x_train.shape)
+    print ("x_test.shape ", x_test.shape)
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = BatchSize,
                                       shuffle = False, num_workers = 1)
@@ -76,7 +76,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
 
     net = torch.load(model_dir + model_name)
     net.eval()
-    print "Validate the model accuracy..."
+    print ("Validate the model accuracy...")
 
     if validation:
         accTest = evalTest(testloader, net, gpu = gpu)
@@ -99,7 +99,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
     if gpu:
         decoderNet = decoderNet.cuda()
 
-    print decoderNet
+    print (decoderNet)
 
     NBatch = len(trainset) / BatchSize
     MSELossLayer = torch.nn.MSELoss()
@@ -146,7 +146,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
         decoderNetOutput = decoderNet.forward(originalModelOutput)
         valLoss = MSELossLayer(valData, decoderNetOutput)
 
-        print "Epoch ", epoch, "Train Loss: ", lossTrain.cpu().detach().numpy(), "Test Loss: ", valLoss.cpu().detach().numpy()
+        print ("Epoch ", epoch, "Train Loss: ", lossTrain.cpu().detach().numpy(), "Test Loss: ", valLoss.cpu().detach().numpy())
         if (epoch + 1) % NDecreaseLR == 0:
             learningRate = learningRate / 2.0
             setLearningRate(optimizer, learningRate)
@@ -154,17 +154,17 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
     if validation:
         accTestEnd = evalTest(testloader, net, gpu = gpu)
         if accTest != accTestEnd:
-            print "Something wrong. Original model has been modified!"
+            print ("Something wrong. Original model has been modified!")
             exit(1)
 
     if not os.path.exists(save_decoder_dir):
         os.makedirs(save_decoder_dir)
     torch.save(decoderNet, save_decoder_dir + decodername_name)
-    print "Model saved"
+    print ("Model saved")
 
     newNet = torch.load(save_decoder_dir + decodername_name)
     newNet.eval()
-    print "Model restore done"
+    print ("Model restore done")
 
 
 def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeight = 32,
@@ -172,8 +172,8 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
         model_dir = "checkpoints/CIFAR10/", model_name = "ckpt.pth", decoder_name = "CIFAR10CNNDecoderconv11.pth",
         save_img_dir = "inverted_blackbox_decoder/CIFAR10/", gpu = True, validation=False):
 
-    print "DATASET: ", DATASET
-    print "inverseClass: ", inverseClass
+    print ("DATASET: ", DATASET)
+    print ("inverseClass: ", inverseClass)
 
     assert inverseClass < NClasses
 
@@ -200,17 +200,17 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
                                        download=True, transform = tsf['test'])
 
     else:
-        print "Dataset unsupported"
+        print ("Dataset unsupported")
         exit(1)
 
 
-    print "len(trainset) ", len(trainset)
-    print "len(testset) ", len(testset)
+    print ("len(trainset) ", len(trainset))
+    print ("len(testset) ", len(testset))
     x_train, y_train = trainset.train_data, trainset.train_labels,
     x_test, y_test = testset.test_data, testset.test_labels,
 
-    print "x_train.shape ", x_train.shape
-    print "x_test.shape ", x_test.shape
+    print ("x_train.shape ", x_train.shape)
+    print ("x_test.shape ", x_test.shape)
 
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = 1,
@@ -228,7 +228,7 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
     if not gpu:
         net = net.cpu()
     net.eval()
-    print "Validate the model accuracy..."
+    print ("Validate the model accuracy...")
 
     if validation:
         accTest = evalTest(testloader, net, gpu = gpu)
@@ -237,14 +237,14 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
     if not gpu:
         decoderNet = decoderNet.cpu()
     decoderNet.eval()
-    print decoderNet
-    print "Validate the alternative model..."
+    print (decoderNet)
+    print ("Validate the alternative model...")
     batchX, batchY = iter(testloader).next()
     if gpu:
         batchX = batchX.cuda()
         batchY = batchY.cuda()
 
-    print "batchX.shape ", batchX.cpu().detach().numpy().shape
+    print ("batchX.shape ", batchX.cpu().detach().numpy().shape)
 
     MSELossLayer = torch.nn.MSELoss()
     if gpu:
@@ -253,11 +253,11 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
     decoderNetOutput = decoderNet.forward(originalModelOutput)
 
     assert batchX.cpu().detach().numpy().shape == decoderNetOutput.cpu().detach().numpy().shape
-    print "decoderNetOutput.shape ", decoderNetOutput.cpu().detach().numpy().shape
-    print "MSE ", MSELossLayer(batchX, decoderNetOutput).cpu().detach().numpy()
+    print ("decoderNetOutput.shape ", decoderNetOutput.cpu().detach().numpy().shape)
+    print ("MSE ", MSELossLayer(batchX, decoderNetOutput).cpu().detach().numpy())
 
     targetImg, _ = getImgByClass(inverseIter, C = inverseClass)
-    print "targetImg.size()", targetImg.size()
+    print ("targetImg.size()", targetImg.size())
 
     deprocessImg = deprocess(targetImg.clone())
 
@@ -270,17 +270,17 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
     targetLayer = net.layerDict[layer]
     refFeature = net.getLayerOutput(targetImg, targetLayer)
 
-    print "refFeature.size()", refFeature.size()
+    print ("refFeature.size()", refFeature.size())
 
     xGen = decoderNet.forward(refFeature)
-    print "MSE ", MSELossLayer(targetImg, xGen).cpu().detach().numpy()
+    print ("MSE ", MSELossLayer(targetImg, xGen).cpu().detach().numpy())
 
     # save the final result
     imgGen = xGen.clone()
     imgGen = deprocess(imgGen)
     torchvision.utils.save_image(imgGen, save_img_dir + str(inverseClass) + '-inv.png')
 
-    print "Done"
+    print ("Done")
 
 
 if __name__ == '__main__':
@@ -330,7 +330,7 @@ if __name__ == '__main__':
             NClasses = 10
 
         else:
-            print "No Dataset Found"
+            print ("No Dataset Found")
             exit()
 
         if args.training:
