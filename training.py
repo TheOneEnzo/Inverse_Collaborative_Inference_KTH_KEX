@@ -115,17 +115,18 @@ def train(DATASET = 'CIFAR10', network = 'CIFAR10CNN', NEpochs = 200, imageWidth
 
     optimizer = optim.Adam(params = net.parameters(), lr = learningRate, eps = eps, amsgrad = AMSGrad)
 
-    NBatch = len(trainset) / BatchSize
+    NBatch = len(trainset) // BatchSize
     cudnn.benchmark = True
     for epoch in range(NEpochs):
         lossTrain = 0.0
         accTrain = 0.0
         for i in range(NBatch):
             try:
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
             except StopIteration:
                 trainIter = iter(trainloader)
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
+
 
             if gpu:
                 batchX = batchX.cuda()
