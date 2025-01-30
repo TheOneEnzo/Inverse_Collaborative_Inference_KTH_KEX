@@ -31,7 +31,7 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
         NDecreaseLR = 5, eps = 1e-3, AMSGrad = True, model_dir = "checkpoints/MNIST/", model_name = "ckpt.pth", save_alternative_model_dir = "checkpoints/MNIST/",
         alternative_model_name = "LeNetAccessFree.pth", gpu = True, validation=False):
 
-    print "DATASET: ", DATASET
+    print ("DATASET: ", DATASET)
 
     if DATASET == 'CIFAR10':
         mu = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float32)
@@ -56,16 +56,16 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
                                        download=True, transform = tsf['test'])
 
     else:
-        print "Dataset unsupported"
+        print ("Dataset unsupported")
         exit(1)
 
-    print "len(trainset) ", len(trainset)
-    print "len(testset) ", len(testset)
+    print ("len(trainset) ", len(trainset))
+    print ("len(testset) ", len(testset))
     x_train, y_train = trainset.data, trainset.targets,
     x_test, y_test = testset.data, testset.targets,
 
-    print "x_train.shape ", x_train.shape
-    print "x_test.shape ", x_test.shape
+    print ("x_train.shape ", x_train.shape)
+    print ("x_test.shape ", x_test.shape)
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = BatchSize,
                                       shuffle = False, num_workers = 1)
@@ -80,7 +80,7 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
         net = net.cpu()
 
     net.eval()
-    print "Validate the model accuracy..."
+    print ("Validate the model accuracy...")
 
     if validation:
         accTest = evalTest(testloader, net, gpu = gpu)
@@ -99,10 +99,10 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
     else:
         alternativeNet = alternativeNetFunc(NChannels)
 
-    print alternativeNet
+    print (alternativeNet)
 
     # Get dims of input/output, and construct the network
-    batchX, batchY = trainIter.next()
+    batchX, batchY = next(trainIter)
     if gpu:
         batchX = batchX.cuda()
 
@@ -113,10 +113,10 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
     else:
         cloudOuput = net.forward_from(edgeOutput, layer)
 
-    print "edgeOutput.size", edgeOutput.size()
-    print "cloudOuput.size", cloudOuput.size()
+    print ("edgeOutput.size", edgeOutput.size())
+    print ("cloudOuput.size", cloudOuput.size())
 
-    NBatch = len(trainset) / BatchSize
+    NBatch = len(trainset) // BatchSize
     if gpu:
         CrossEntropyLossLayer = nn.CrossEntropyLoss().cuda()
     else:
@@ -127,7 +127,7 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
     optimizer = optim.Adam(params = alternativeNet.parameters(), lr = learningRate, eps = eps, amsgrad = AMSGrad)
 
     # Sanity check
-    valData, valLabel = iter(testloader).next()
+    valData, valLabel = next(iter(testloader))
     if gpu:
         valData = valData.cuda()
         valLabel = valLabel.cuda()
@@ -136,17 +136,17 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
     cloudOuput = net.forward_from(edgeOutput, layer).clone()
     valLoss = CrossEntropyLossLayer(cloudOuput, valLabel)
 
-    print "Test Loss without training: ", valLoss.cpu().detach().numpy()
+    print ("Test Loss without training: ", valLoss.cpu().detach().numpy())
 
     for epoch in range(NEpochs):
         lossTrain = 0.0
         accTrain = 0.0
         for i in range(NBatch):
             try:
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
             except StopIteration:
                 trainIter = iter(trainloader)
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
 
             if gpu:
                 batchX = batchX.cuda()
@@ -165,7 +165,7 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
 
             lossTrain += totalLoss.cpu().detach().numpy() / NBatch
 
-        valData, valLabel = iter(testloader).next()
+        valData, valLabel = next(iter(testloader))
         if gpu:
             valData = valData.cuda()
             valLabel = valLabel.cuda()
@@ -175,7 +175,7 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
 
         if validation:
             accTestSplitModel = evalTestSplitModel(testloader, alternativeNet, net, layer, gpu = gpu)
-            print "Epoch ", epoch, "Train Loss: ", lossTrain, "Test Loss: ", valLoss.cpu().detach().numpy(), "Test Accuracy", accTestSplitModel
+            print ("Epoch ", epoch, "Train Loss: ", lossTrain, "Test Loss: ", valLoss.cpu().detach().numpy(), "Test Accuracy", accTestSplitModel)
 
         if (epoch + 1) % NDecreaseLR == 0:
             learningRate = learningRate / 2.0
@@ -184,17 +184,17 @@ def trainAlternativeDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNAlternative', 
     if validation:
         accTestEnd = evalTest(testloader, net, gpu = gpu)
         if accTest != accTestEnd:
-            print "Something wrong. Original model has been modified!"
+            print ("Something wrong. Original model has been modified!")
             exit(1)
 
     if not os.path.exists(save_alternative_model_dir):
         os.makedirs(save_alternative_model_dir)
     torch.save(alternativeNet, save_alternative_model_dir + alternative_model_name)
-    print "Model saved"
+    print ("Model saved")
 
     newNet = torch.load(save_alternative_model_dir + alternative_model_name)
     newNet.eval()
-    print "Model restore done"
+    print ("Model restore done")
 
 
 def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = None,
@@ -204,8 +204,8 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
         alternative_model_name = "CIFAR10CNNAccessFree.pth", save_img_dir = "inverted_access_free/CIFAR10/MSE_TV/",
         saveIter = 10, gpu = True, validation=False):
 
-    print "DATASET: ", DATASET
-    print "inverseClass: ", inverseClass
+    print ("DATASET: ", DATASET)
+    print ("inverseClass: ", inverseClass)
 
     assert inverseClass < NClasses
 
@@ -233,17 +233,17 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
                                        download=True, transform = tsf['test'])
 
     else:
-        print "Dataset unsupported"
+        print ("Dataset unsupported")
         exit(1)
 
 
-    print "len(trainset) ", len(trainset)
-    print "len(testset) ", len(testset)
-    x_train, y_train = trainset.train_data, trainset.train_labels,
-    x_test, y_test = testset.test_data, testset.test_labels,
+    print ("len(trainset) ", len(trainset))
+    print ("len(testset) ", len(testset))
+    x_train, y_train = trainset.data, trainset.targets
+    x_test, y_test = testset.data, testset.targets
 
-    print "x_train.shape ", x_train.shape
-    print "x_test.shape ", x_test.shape
+    print ("x_train.shape ", x_train.shape)
+    print ("x_test.shape ", x_test.shape)
 
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size = 1,
@@ -261,7 +261,7 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
     if not gpu:
         net = net.cpu()
     net.eval()
-    print "Validate the model accuracy..."
+    print ("Validate the model accuracy...")
 
     if validation:
         accTest = evalTest(testloader, net, gpu = gpu)
@@ -270,9 +270,9 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
     if not gpu:
         alternativeNet = alternativeNet.cpu()
     alternativeNet.eval()
-    print alternativeNet
+    print (alternativeNet)
     #print "Validate the alternative model..."
-    batchX, batchY = iter(testloader).next()
+    batchX, batchY = next(trainIter)
     if gpu:
         batchX = batchX.cuda()
         batchY = batchY.cuda()
@@ -285,12 +285,12 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
     originalModelOutput = net.getLayerOutput(batchX, net.layerDict[layer]).clone()
     alternativeModelOutput = alternativeNet.forward(batchX)
 
-    print "originalModelOutput.shape: ", originalModelOutput.shape, "alternativeModelOutput.shape: ", alternativeModelOutput.shape
-    print "MSE difference on layer " + layer, MSELossLayer(originalModelOutput, alternativeModelOutput)
+    print ("originalModelOutput.shape: ", originalModelOutput.shape, "alternativeModelOutput.shape: ", alternativeModelOutput.shape)
+    print ("MSE difference on layer " + layer, MSELossLayer(originalModelOutput, alternativeModelOutput))
 
 
     targetImg, _ = getImgByClass(inverseIter, C = inverseClass)
-    print "targetImg.size()", targetImg.size()
+    print ("targetImg.size()", targetImg.size())
 
     deprocessImg = deprocess(targetImg.clone())
 
@@ -303,7 +303,7 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
     targetLayer = net.layerDict[layer]
     refFeature = net.getLayerOutput(targetImg, targetLayer)
 
-    print "refFeature.size()", refFeature.size()
+    print ("refFeature.size()", refFeature.size())
 
     if gpu:
         xGen = torch.zeros(targetImg.size(), requires_grad = True, device="cuda")
@@ -327,14 +327,14 @@ def inverse(DATASET = 'CIFAR10', NIters = 500, imageWidth = 32, inverseClass = N
         totalLoss.backward(retain_graph=True)
         optimizer.step()
 
-        print "Iter ", i, "Feature loss: ", featureLoss.cpu().detach().numpy(), "TVLoss: ", TVLoss.cpu().detach().numpy(), "l2Loss: ", normLoss.cpu().detach().numpy()
+        print ("Iter ", i, "Feature loss: ", featureLoss.cpu().detach().numpy(), "TVLoss: ", TVLoss.cpu().detach().numpy(), "l2Loss: ", normLoss.cpu().detach().numpy())
 
     # save the final result
     imgGen = xGen.clone()
     imgGen = deprocess(imgGen)
     torchvision.utils.save_image(imgGen, save_img_dir + str(inverseClass) + '-inv.png')
 
-    print "Done"
+    print ("Done")
 
 
 if __name__ == '__main__':
@@ -386,7 +386,7 @@ if __name__ == '__main__':
             NClasses = 10
 
         else:
-            print "No Dataset Found"
+            print ("No Dataset Found")
             exit()
 
         if args.training:
