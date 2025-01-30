@@ -61,8 +61,8 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
 
     print ("len(trainset) ", len(trainset))
     print ("len(testset) ", len(testset))
-    x_train, y_train = trainset.data, trainset.targets,
-    x_test, y_test = testset.data, testset.targets,
+    x_train, y_train = trainset.data, trainset.targets
+    x_test, y_test = testset.data, testset.targets
 
     print ("x_train.shape ", x_train.shape)
     print ("x_test.shape ", x_test.shape)
@@ -82,7 +82,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
         accTest = evalTest(testloader, net, gpu = gpu)
 
     # Get dims of input/output, and construct the network
-    batchX, batchY = trainIter.next()
+    batchX, batchY = next(trainIter)
     if gpu:
         batchX = batchX.cuda()
     originalModelOutput = net.getLayerOutput(batchX, net.layerDict[layer]).clone()
@@ -101,7 +101,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
 
     print (decoderNet)
 
-    NBatch = len(trainset) / BatchSize
+    NBatch = len(trainset) // BatchSize
     MSELossLayer = torch.nn.MSELoss()
     if gpu:
         MSELossLayer = MSELossLayer.cuda()
@@ -115,10 +115,10 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
         accTrain = 0.0
         for i in range(NBatch):
             try:
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
             except StopIteration:
                 trainIter = iter(trainloader)
-                batchX, batchY = trainIter.next()
+                batchX, batchY = next(trainIter)
 
             if gpu:
                 batchX = batchX.cuda()
@@ -138,7 +138,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
 
             lossTrain += totalLoss / NBatch
 
-        valData, valLabel = iter(testloader).next()
+        valData, valLabel = next(iter(testloader))
         if gpu:
             valData = valData.cuda()
             valLabel = valLabel.cuda()
@@ -206,8 +206,9 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
 
     print ("len(trainset) ", len(trainset))
     print ("len(testset) ", len(testset))
-    x_train, y_train = trainset.train_data, trainset.train_labels,
-    x_test, y_test = testset.test_data, testset.test_labels,
+    x_train, y_train = trainset.data, trainset.targets
+    x_test, y_test = testset.data, testset.targets
+
 
     print ("x_train.shape ", x_train.shape)
     print ("x_test.shape ", x_test.shape)
@@ -239,7 +240,7 @@ def inverse(DATASET = 'CIFAR10', imageWidth = 32, inverseClass = None, imageHeig
     decoderNet.eval()
     print (decoderNet)
     print ("Validate the alternative model...")
-    batchX, batchY = iter(testloader).next()
+    batchX, batchY = next(trainIter)
     if gpu:
         batchX = batchX.cuda()
         batchY = batchY.cuda()

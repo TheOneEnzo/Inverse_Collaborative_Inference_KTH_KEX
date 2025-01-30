@@ -37,7 +37,7 @@ def getImgByClass(Itr, C = None):
         return Itr.next()
 
     while (True):
-        img, label = Itr.next()
+        img, label = next(Itr)
         if label == C:
             break
     return img, label
