@@ -1,17 +1,17 @@
-#Privacy-Enhancing Sub-Sampling Meets Model Inversion Attacks
+# Privacy-Enhancing Sub-Sampling Meets Model Inversion Attacks
 
 This repository contains the code and experiments from our bachelor's thesis at KTH, where we investigate how differentially private training combined with sub-sampling affects vulnerability to black-box model inversion attacks.
 
 We reproduce and extend the attack proposed by He et al. and evaluate how optimizer choice (DP-SGD vs. Adam) and training strategies influence model performance and privacy leakage. All experiments were conducted in Google Colab using the CIFAR-10 dataset.
 
-##Summary of Contributions
+## Summary of Contributions
 *Reproduced the black-box model inversion attack from He et al. (ACSAC 2019)
 *Integrated Opacus to train image classifiers using DP-SGD with formal differential privacy guarantees
 *Introduced sub-sampling as a privacy amplification technique
 *Evaluated attack effectiveness using classification accuracy, PSNR, SSIM, and privacy margins
 *Conducted all experiments in Google Colab with GPU acceleration
 
-##Running the Experiments
+## Running the Experiments
 This project is designed to run end-to-end in Google Colab. Each script corresponds to a step in the pipeline. GPU acceleration is recommended for all training and attack steps.
 
 1. Train a baseline (non-private) model
@@ -27,22 +27,22 @@ This project is designed to run end-to-end in Google Colab. Each script correspo
 `python evaluate.py --metrics psnr ssim attack_accuracy`
 
 This will generate:
-*Classification and inversion accuracy
-*PSNR and SSIM scores
-*Reconstructed vs. original image comparisons
+* Classification and inversion accuracy
+* PSNR and SSIM scores
+* Reconstructed vs. original image comparisons
 
-##Dependencies
+## Dependencies
 To run locally, install the required packages:
 `pip install torch torchvision opacus matplotlib scikit-learn numpy`
 For Google Colab, these dependencies are pre-installed or easily added via pip.
 
-##Dataset and Architecture
-*Dataset: CIFAR-10 (using a subset of 7 classes)
-*Model: Custom convolutional neural network (CIFAR10CNN)
-*Training: 50 epochs per experiment
-*Differential Privacy: Implemented using Opacus with RDP accounting
+## Dataset and Architecture
+* Dataset: CIFAR-10 (using a subset of 7 classes)
+* Model: Custom convolutional neural network (CIFAR10CNN)
+* Training: 50 epochs per experiment
+* Differential Privacy: Implemented using Opacus with RDP accounting
 
-##Citation
+## Citation
 If you use this work, please cite:
 
 `@bachelorsthesis{abbas2025privacy,
@@ -63,5 +63,5 @@ Also consider citing the original attack paper:
   ` 
 }
 
-##Acknowledgements
+## Acknowledgements
 We thank our supervisor Leonhard Grosse for his guidance and support throughout this project
