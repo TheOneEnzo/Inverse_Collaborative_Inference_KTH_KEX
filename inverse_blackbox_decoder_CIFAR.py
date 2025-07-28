@@ -1,6 +1,3 @@
-# @Author: Zecheng He
-# @Date:   2019-09-01
-
 import time
 import math
 import os
@@ -74,7 +71,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
     trainIter = iter(trainloader)
     testIter = iter(testloader)
 
-    net = torch.load(model_dir + model_name)
+    net = torch.load(model_dir + model_name, weights_only=False)
     net.eval()
     print ("Validate the model accuracy...")
 
@@ -162,7 +159,7 @@ def trainDecoderDNN(DATASET = 'CIFAR10', network = 'CIFAR10CNNDecoder', NEpochs 
     torch.save(decoderNet, save_decoder_dir + decodername_name)
     print ("Model saved")
 
-    newNet = torch.load(save_decoder_dir + decodername_name)
+    newNet = torch.load((save_decoder_dir + decodername_name), weights_only=False)
     newNet.eval()
     print ("Model restore done")
 
